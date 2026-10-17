@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>License Forge — License & Key Generator</title>
+<meta name="description" content="Generate license files and signed product keys. Runs entirely in your browser.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0b0d12;
+  --panel:#12151d;
+  --panel-2:#171b25;
+  --field:#0d1017;
+  --line:#242935;
+  --text:#e8ebf2;
+  --muted:#8a92a6;
+  --accent:#7c5cff;
+  --accent-2:#22d3ee;
+  --radius:18px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  min-height:100vh;
+  background:
+    radial-gradient(1100px 620px at 8% -12%, rgba(124,92,255,.20), transparent 60%),
+    radial-gradient(900px 520px at 108% 0%, rgba(34,211,238,.13), transparent 60%),
+    var(--bg);
+  color:var(--text);
+  font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+header{
+  max-width:1280px;margin:0 auto;padding:28px 24px 8px;
+  display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;
+}
+.brand{display:flex;align-items:center;gap:12px}
+.brand b{display:block;font-size:16px;letter-spacing:-.01em}
+.logo{
+  width:38px;height:38px;border-radius:12px;flex:none;
+  background:linear-gradient(135deg,var(--accent),var(--accent-2));
+  box-shadow:0 10px 28px rgba(124,92,255,.38);
+}
+.tag{font-size:12px;color:var(--muted);border:1px solid var(--line);padding:7px 12px;border-radius:999px;background:rgba(18,21,29,.6)}
+.wrap{max-width:1280px;margin:0 auto;padding:18px 24px 40px}
+h1{
+  font-size:clamp(30px,4.2vw,46px);line-height:1.08;letter-spacing:-.035em;margin:10px 0 12px;font-weight:700;
+  background:linear-gradient(180deg,#ffffff,#a9b2c7);-webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.lede{color:var(--muted);margin:0 0 22px;max-width:620px;line-height:1.65;font-size:15px}
+.tabs{display:inline-flex;gap:6px;padding:5px;background:var(--panel);border:1px solid var(--line);border-radius:14px;margin-bottom:24px}
+.tab{
+  font:inherit;font-size:14px;font-weight:600;color:var(--muted);background:transparent;border:0;
+  padding:10px 18px;border-radius:10px;cursor:pointer;transition:all .15s ease;
+}
+.tab[aria-selected="true"]{color:#fff;background:linear-gradient(135deg,rgba(124,92,255,.95),rgba(34,211,238,.75));box-shadow:0 8px 20px rgba(124,92,255,.25)}
+.tab:focus-visible{outline:none;box-shadow:0 0 0 4px rgba(124,92,255,.3)}
+[hidden]{display:none !important}
+.split{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:28px;align-items:start}
+@media (max-width:980px){.split{grid-template-columns:1fr}}
+.stack{display:flex;flex-direction:column;gap:18px;min-width:0}
+.narrow{max-width:860px}
+.card{
+  background:linear-gradient(180deg,var(--panel-2),var(--panel));
+  border:1px solid var(--line);border-radius:var(--radius);padding:22px;
+  box-shadow:0 24px 60px rgba(0,0,0,.35);min-width:0;
+}
+.card h2{font-size:12px;text-transform:uppercase;letter-spacing:.14em;color:var(--muted);margin:0 0 18px;font-weight:600}
+.field{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+.field:last-child{margin-bottom:0}
+.lbl{font-size:14px;font-weight:500}
+.hint{font-size:12px;color:var(--muted);line-height:1.5}
+input[type=text],input[type=password],input[type=date],input[type=number],textarea,select{
+  width:100%;background:var(--field);border:1px solid var(--line);color:var(--text);
+  border-radius:12px;padding:12px 14px;font:inherit;font-size:14px;height:46px;
+  transition:border-color .2s,box-shadow .2s;
+}
+input[type=date]{color-scheme:dark}
+select{appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(135deg,var(--muted) 50%,transparent 50%);background-position:calc(100% - 20px) 20px,calc(100% - 14px) 20px;background-size:6px 6px;background-repeat:no-repeat;padding-right:36px}
+textarea{height:auto;min-height:120px;resize:vertical;line-height:1.55;padding:14px}
+input::placeholder,textarea::placeholder{color:#525a6e}
+input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 4px rgba(124,92,255,.18)}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media (max-width:600px){.row{grid-template-columns:1fr}}
+.preview{position:sticky;top:24px;display:flex;flex-direction:column;gap:16px;height:calc(100vh - 150px);min-height:540px}
+@media (max-width:980px){.preview{position:static;height:auto;min-height:0}}
+.preview-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.preview-head h2{margin:0 0 4px;font-size:12px;text-transform:uppercase;letter-spacing:.14em;color:var(--muted);font-weight:600}
+.counter{font-size:12px;color:var(--muted)}
+pre{
+  flex:1;margin:0;overflow:auto;background:#090b10;border:1px solid var(--line);border-radius:14px;
+  padding:20px;font:13px/1.65 "JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;color:#cdd5e6;
+  white-space:pre-wrap;word-break:break-word;min-height:300px;
+}
+pre.key{font-size:17px;letter-spacing:.04em;color:#fff;min-height:0;flex:none;padding:18px;text-align:center;word-break:break-all}
+.note{font-size:12px;color:var(--muted);line-height:1.6;padding:12px 14px;border:1px dashed var(--line);border-radius:12px;margin-top:14px}
+.note a{color:var(--accent-2);text-decoration:none}
+.note a:hover{text-decoration:underline}
+.btns{display:flex;gap:10px;flex-wrap:wrap}
+button{
+  font:inherit;font-size:14px;font-weight:600;border:1px solid var(--line);background:#161a24;color:var(--text);
+  border-radius:12px;padding:11px 16px;cursor:pointer;transition:transform .1s,filter .2s,background .2s;
+}
+button:hover{filter:brightness(1.15)}
+button:active{transform:scale(.98)}
+button:focus-visible{outline:none;box-shadow:0 0 0 4px rgba(124,92,255,.3)}
+button.primary{background:linear-gradient(135deg,var(--accent),#5b8cff);border-color:transparent;color:#fff;box-shadow:0 10px 30px rgba(124,92,255,.35)}
+button.ghost{background:transparent}
+button.small{padding:8px 12px;font-size:13px}
+.checkline{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted);margin-top:12px;cursor:pointer}
+.checkline input{width:16px;height:16px;accent-color:var(--accent)}
+.result{margin-top:14px;padding:14px 16px;border-radius:12px;font-size:14px;line-height:1.6;border:1px solid var(--line);background:var(--field)}
+.result.ok{border-color:rgba(52,211,153,.5)}
+.result.bad{border-color:rgba(248,113,113,.5)}
+.result.warn{border-color:rgba(251,191,36,.5)}
+.result strong{display:block;margin-bottom:4px}
+.history{display:flex;flex-direction:column;gap:10px;margin-top:4px}
+.hrow{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 14px;background:var(--field);border:1px solid var(--line);border-radius:12px;flex-wrap:wrap}
+.hrow code{font:13px "JetBrains Mono",ui-monospace,monospace;color:#cdd5e6;word-break:break-all}
+.hrow small{display:block;color:var(--muted);font-size:12px;margin-top:4px}
+.empty{color:var(--muted);font-size:14px}
+.toast{
+  position:fixed;left:50%;bottom:28px;transform:translate(-50%,20px);opacity:0;pointer-events:none;
+  background:#1b2030;border:1px solid var(--line);padding:12px 18px;border-radius:12px;font-size:14px;
+  transition:opacity .25s,transform .25s;box-shadow:0 20px 40px rgba(0,0,0,.45);z-index:10;
+}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.toast.ok{border-color:rgba(52,211,153,.5)}
+.toast.err{border-color:rgba(248,113,113,.5)}
+footer{max-width:1280px;margin:0 auto;padding:0 24px 40px;color:var(--muted);font-size:12px}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <div class="logo" aria-hidden="true"></div>
+    <div><b>License Forge</b><span class="hint">License text & product key generator</span></div>
+  </div>
+  <span class="tag">Runs fully in your browser · secrets never leave this page</span>
+</header>
+
+<div class="wrap">
+  <h1>License files and signed keys, in one place.</h1>
+  <p class="lede">Create the license text for your projects, or issue signed keys for your paid plugins and apps. Everything runs locally in this browser.</p>
+
+  <div class="tabs" role="tablist" aria-label="Tools">
+    <button type="button" class="tab" role="tab" id="tab-license" aria-controls="panel-license" aria-selected="true">License text</button>
+    <button type="button" class="tab" role="tab" id="tab-keys" aria-controls="panel-keys" aria-selected="false">Product keys</button>
+  </div>
+
+  <!-- LICENSE TEXT PANEL -->
+  <section id="panel-license" role="tabpanel" aria-labelledby="tab-license" class="split">
+    <div class="stack">
+      <div class="card">
+        <h2>01 · License</h2>
+        <div class="field">
+          <label class="lbl" for="lType">License type</label>
+          <select id="lType">
+            <option value="mit">MIT · permissive</option>
+            <option value="bsd">BSD 3-Clause · permissive</option>
+            <option value="apache">Apache 2.0 · permissive with patent grant</option>
+            <option value="mpl">MPL 2.0 · file-level copyleft</option>
+            <option value="lgpl">LGPL-3.0 · library copyleft</option>
+            <option value="gpl">GPL-3.0 · strong copyleft</option>
+            <option value="agpl">AGPL-3.0 · network copyleft</option>
+            <option value="eula">Proprietary EULA · closed source</option>
+            <option value="arr">All Rights Reserved · no reuse</option>
+          </select>
+          <span class="hint" id="lDesc"></span>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>02 · Details</h2>
+        <div class="row">
+          <div class="field">
+            <label class="lbl" for="lHolder">Copyright holder</label>
+            <input type="text" id="lHolder" value="direk james" maxlength="80">
+          </div>
+          <div class="field">
+            <label class="lbl" for="lYear">Year</label>
+            <input type="number" id="lYear" min="1970" max="2999" step="1">
+          </div>
+        </div>
+        <div class="row">
+          <div class="field">
+            <label class="lbl" for="lProduct">Product name</label>
+            <input type="text" id="lProduct" placeholder="e.g. AutoRestart" maxlength="80">
+          </div>
+          <div class="field">
+            <label class="lbl" for="lContact">Contact <span class="hint">(optional)</span></label>
+            <input type="text" id="lContact" placeholder="email or website" maxlength="120">
+          </div>
+        </div>
+        <div class="field">
+          <label class="lbl" for="lGov">Governing law <span class="hint">(EULA only)</span></label>
+          <input type="text" id="lGov" value="the Republic of the Philippines" maxlength="80">
+        </div>
+      </div>
+    </div>
+
+    <aside class="card preview" aria-label="License preview">
+      <div class="preview-head">
+        <div>
+          <h2>License preview</h2>
+          <div class="counter" id="lCount">—</div>
+        </div>
+        <div class="btns">
+          <button type="button" id="lDl">Download LICENSE</button>
+          <button type="button" class="primary" id="lCopy">Copy</button>
+        </div>
+      </div>
+      <pre id="lOut" tabindex="0"></pre>
+      <div class="note" id="lNote"></div>
+    </aside>
+  </section>
+
+  <!-- KEYS PANEL -->
+  <section id="panel-keys" role="tabpanel" aria-labelledby="tab-keys" class="stack narrow" hidden>
+
+    <div class="card">
+      <h2>01 · Signing secret</h2>
+      <div class="field">
+        <label class="lbl" for="secret">Secret phrase</label>
+        <input type="password" id="secret" placeholder="A long phrase only you know" autocomplete="new-password">
+        <span class="hint">Keys are signed with this secret. Use the same secret to create and verify keys. Keep it private, and never put it in your plugin's code.</span>
+      </div>
+      <label class="checkline"><input type="checkbox" id="remember"> Remember on this device (stored only in this browser)</label>
+    </div>
+
+    <div class="card">
+      <h2>02 · Create a key</h2>
+      <div class="row">
+        <div class="field">
+          <label class="lbl" for="kProduct">Product code</label>
+          <input type="text" id="kProduct" placeholder="e.g. AUTORS" maxlength="10">
+          <span class="hint">2 to 10 letters or numbers.</span>
+        </div>
+        <div class="field">
+          <label class="lbl" for="kTier">License tier</label>
+          <select id="kTier">
+            <option value="S">Single server</option>
+            <option value="U">Unlimited servers</option>
+            <option value="P">Personal use</option>
+            <option value="C">Custom</option>
+          </select>
+        </div>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label class="lbl" for="kExpiry">Expiry date</label>
+          <input type="date" id="kExpiry">
+          <span class="hint">Leave empty for a lifetime license.</span>
+        </div>
+        <div class="field">
+          <label class="lbl" for="kBuyer">Buyer note <span class="hint">(history only)</span></label>
+          <input type="text" id="kBuyer" placeholder="e.g. Order #1042" maxlength="120">
+        </div>
+      </div>
+      <div class="btns" style="margin-top:6px">
+        <button type="button" class="primary" id="kGen">Generate key</button>
+      </div>
+      <div id="kResult"></div>
+    </div>
+
+    <div class="card">
+      <h2>03 · Verify a key</h2>
+      <div class="field">
+        <label class="lbl" for="vKey">License key</label>
+        <input type="text" id="vKey" placeholder="DK-AUTORS-S-20271231-1A2B3C4D-XXXXXXXXXXXX" maxlength="80" spellcheck="false">
+      </div>
+      <div class="btns">
+        <button type="button" id="vGo">Verify</button>
+      </div>
+      <div id="vResult"></div>
+    </div>
+
+    <div class="card">
+      <h2>04 · History</h2>
+      <div class="btns" style="margin-bottom:14px">
+        <button type="button" class="ghost small" id="hClear">Clear history</button>
+      </div>
+      <div class="history" id="history"></div>
+    </div>
+
+    <div class="note">
+      Keys make casual piracy harder, but this page cannot stop a determined person. Anyone who can read your plugin can often find the check. For real protection, verify keys on a server you control, or use a licensing service.
+    </div>
+  </section>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<footer>Single static file · Works on GitHub Pages · Your data stays in this browser.</footer>
+
+<script>
+(() => {
+  "use strict";
+
+  const $ = (id) => document.getElementById(id);
+  const K_LICENSE = "licenseforge.license.v1";
+  const K_HISTORY = "licenseforge.history.v1";
+  const K_SECRET = "licenseforge.secret.v1";
+
+  const TIERS = { S: "Single server", U: "Unlimited servers", P: "Personal use", C: "Custom" };
+
+  const LICENSE_INFO = {
+    mit: "Very permissive. Anyone can use, modify, and sell it, as long as the notice stays.",
+    bsd: "Permissive. Keeps the copyright notice and bars using the author's name to endorse derivatives.",
+    apache: "Permissive, with an explicit patent grant and a clear contributor agreement.",
+    mpl: "Copyleft per file. Changed MPL files stay open, but you can combine them with proprietary code.",
+    lgpl: "Copyleft for libraries. Changes to the library stay open, and apps can link to it.",
+    gpl: "Strong copyleft. Derivative works must stay open source under the same license.",
+    agpl: "Strong copyleft that also covers network use. If users interact with a modified version over a network, its source must be offered.",
+    eula: "For closed-source software you sell. Grants use of the product, not ownership.",
+    arr: "No permissions granted. Nobody may use, copy, or modify the work without your written consent."
+  };
+
+  const LICENSE_NOTE = {
+    mit: "Save this as LICENSE in the project root. The full MIT text is included above.",
+    bsd: "Save this as LICENSE in the project root. This is the full 3-Clause BSD text.",
+    apache: "This is the standard notice. Save the full Apache 2.0 text as LICENSE from the official link below, and put this notice at the top of your source files.",
+    mpl: "This is the standard notice for each file. Save the full MPL 2.0 text as LICENSE from the official link below.",
+    lgpl: "This is the standard notice. Save the full LGPL-3.0 text as LICENSE from the official link below, and add this notice to each source file. It must be used together with the GPL-3.0 text.",
+    gpl: "This is the standard notice. Save the full GPL-3.0 text as LICENSE from the official link below, and add this notice to each source file.",
+    agpl: "This is the standard notice. Save the full AGPL-3.0 text as LICENSE from the official link below, and add this notice to each source file.",
+    eula: "Template only. Have a lawyer review it before you sell anything. This is not legal advice.",
+    arr: "Save this as LICENSE in the project root. Nothing here grants anyone permission to use the work."
+  };
+
+  const FULL_TEXT = {
+    mpl: "https://www.mozilla.org/en-US/MPL/2.0/",
+    apache: "https://www.apache.org/licenses/LICENSE-2.0.txt",
+    lgpl: "https://www.gnu.org/licenses/lgpl-3.0.txt",
+    gpl: "https://www.gnu.org/licenses/gpl-3.0.txt",
+    agpl: "https://www.gnu.org/licenses/agpl-3.0.txt"
+  };
+
+  const pad = (n) => String(n).padStart(2, "0");
+  const todayKey = () => {
+    const d = new Date();
+    return `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}`;
+  };
+
+  /* ---------- License text builders ---------- */
+
+  function mitText(o) {
+    return `MIT License
+
+Copyright (c) ${o.year} ${o.holder}
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+`;
+  }
+
+  function apacheText(o) {
+    return `Copyright ${o.year} ${o.holder}
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    https://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+`;
+  }
+
+  function gplText(o) {
+    return `Copyright (C) ${o.year} ${o.holder}
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+`;
+  }
+
+  function bsdText(o) {
+    return `Copyright (c) ${o.year}, ${o.holder}
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice, this
+   list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+
+3. Neither the name of the copyright holder nor the names of its contributors
+   may be used to endorse or promote products derived from this software
+   without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+`;
+  }
+
+  function mplText(o) {
+    return `Copyright (c) ${o.year} ${o.holder}
+
+This Source Code Form is subject to the terms of the Mozilla Public
+License, v. 2.0. If a copy of the MPL was not distributed with this
+file, You can obtain one at https://mozilla.org/MPL/2.0/.
+`;
+  }
+
+  function lgplText(o) {
+    return `Copyright (C) ${o.year} ${o.holder}
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Lesser General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+`;
+  }
+
+  function agplText(o) {
+    return `Copyright (C) ${o.year} ${o.holder}
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+`;
+  }
+
+  function arrText(o) {
+    return `Copyright (c) ${o.year} ${o.holder}. All rights reserved.
+
+No part of this software, including its source code, documentation, and
+related files, may be used, copied, modified, merged, published, distributed,
+sublicensed, sold, or otherwise exploited without the prior written permission
+of the copyright holder.
+`;
+  }
+
+  function eulaText(o) {
+    const prod = o.product || "the Software";
+    const contact = o.contact ? `Contact: ${o.contact}` : "Contact: [add your contact]";
+    return `END-USER LICENSE AGREEMENT
+
+${prod}
+Copyright (c) ${o.year} ${o.holder}. All rights reserved.
+
+1. GRANT OF LICENSE
+${o.holder} grants you a limited, non-exclusive, non-transferable license to
+install and use ${prod} for your own purposes, under the terms of this agreement.
+
+2. RESTRICTIONS
+You may not copy, resell, redistribute, sublicense, reverse engineer,
+decompile, or modify ${prod}, except where applicable law explicitly allows it.
+You may not remove or alter any copyright or licensing notice.
+
+3. OWNERSHIP
+${prod} and all related intellectual property remain the property of
+${o.holder}. This agreement grants a license to use, not ownership.
+
+4. TERMINATION
+This license ends automatically if you break any term of this agreement.
+On termination, you must stop using and delete all copies of ${prod}.
+
+5. NO WARRANTY
+${prod} is provided "AS IS", without warranty of any kind, express or implied,
+including merchantability, fitness for a particular purpose, and non-infringement.
+
+6. LIMITATION OF LIABILITY
+To the maximum extent permitted by law, ${o.holder} is not liable for any
+indirect, incidental, or consequential damages arising from the use of ${prod}.
+
+7. GOVERNING LAW
+This agreement is governed by the laws of ${o.gov || "[your jurisdiction]"}.
+
+8. CONTACT
+${contact}
+`;
+  }
+
+  const BUILDERS = {
+    mit: mitText,
+    bsd: bsdText,
+    apache: apacheText,
+    mpl: mplText,
+    lgpl: lgplText,
+    gpl: gplText,
+    agpl: agplText,
+    eula: eulaText,
+    arr: arrText
+  };
+
+  function readLicenseForm() {
+    return {
+      type: $("lType").value,
+      holder: $("lHolder").value.trim() || "[Copyright holder]",
+      year: ($("lYear").value || String(new Date().getFullYear())).trim(),
+      product: $("lProduct").value.trim(),
+      contact: $("lContact").value.trim(),
+      gov: $("lGov").value.trim()
+    };
+  }
+
+  function renderLicense() {
+    const o = readLicenseForm();
+    $("lDesc").textContent = LICENSE_INFO[o.type];
+    $("lOut").textContent = BUILDERS[o.type](o);
+    const words = $("lOut").textContent.split(/\s+/).filter(Boolean).length;
+    $("lCount").textContent = `${words} words`;
+    const note = $("lNote");
+    note.textContent = LICENSE_NOTE[o.type] + " ";
+    if (FULL_TEXT[o.type]) {
+      const a = document.createElement("a");
+      a.href = FULL_TEXT[o.type];
+      a.target = "_blank";
+      a.rel = "noopener noreferrer";
+      a.textContent = "Open official full text";
+      note.appendChild(a);
+    }
+    try { localStorage.setItem(K_LICENSE, JSON.stringify(o)); } catch (e) { /* ignore */ }
+  }
+
+  function restoreLicense() {
+    let s = null;
+    try { s = JSON.parse(localStorage.getItem(K_LICENSE) || "null"); } catch (e) { s = null; }
+    if (!s) return;
+    if (BUILDERS[s.type]) $("lType").value = s.type;
+    if (s.holder) $("lHolder").value = s.holder;
+    if (s.year) $("lYear").value = s.year;
+    if (s.product) $("lProduct").value = s.product;
+    if (s.contact) $("lContact").value = s.contact;
+    if (s.gov) $("lGov").value = s.gov;
+  }
+
+  /* ---------- Key generation & verification ---------- */
+
+  const hasCrypto = () => !!(window.crypto && crypto.subtle && window.TextEncoder);
+
+  async function hmacHex(secret, payload) {
+    const enc = new TextEncoder();
+    const key = await crypto.subtle.importKey(
+      "raw", enc.encode(secret), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]
+    );
+    const sig = await crypto.subtle.sign("HMAC", key, enc.encode(payload));
+    return [...new Uint8Array(sig)].map((b) => b.toString(16).padStart(2, "0")).join("").toUpperCase();
+  }
+
+  function randomHex(bytes) {
+    const b = new Uint8Array(bytes);
+    crypto.getRandomValues(b);
+    return [...b].map((x) => x.toString(16).padStart(2, "0")).join("").toUpperCase();
+  }
+
+  // Key format: DK-<PRODUCT>-<TIER>-<EXPIRY or LIFE>-<NONCE>-<SIGNATURE>
+  async function signKey(secret, product, tier, exp, nonce) {
+    const sig = (await hmacHex(secret, [product, tier, exp, nonce].join("|"))).slice(0, 12);
+    return `DK-${product}-${tier}-${exp}-${nonce}-${sig}`;
+  }
+
+  async function verifyKey(secret, raw) {
+    const parts = raw.trim().toUpperCase().split("-");
+    if (parts.length !== 6 || parts[0] !== "DK") {
+      return { ok: false, msg: "The key format is not recognized." };
+    }
+    const [, product, tier, exp, nonce, sig] = parts;
+    if (!TIERS[tier]) return { ok: false, msg: "The license tier code is not recognized." };
+    const expected = (await hmacHex(secret, [product, tier, exp, nonce].join("|"))).slice(0, 12);
+    if (expected !== sig) {
+      return { ok: false, msg: "The signature does not match this secret. The key is invalid, or it was made with a different secret." };
+    }
+    const expired = exp !== "LIFE" && exp < todayKey();
+    return { ok: true, expired, product, tier, exp, nonce };
+  }
+
+  const prettyDate = (k) => (k === "LIFE" ? "Lifetime" : `${k.slice(0, 4)}-${k.slice(4, 6)}-${k.slice(6, 8)}`);
+
+  function setResult(el, cls, title, body) {
+    el.innerHTML = "";
+    const box = document.createElement("div");
+    box.className = `result ${cls}`;
+    const strong = document.createElement("strong");
+    strong.textContent = title;
+    const p = document.createElement("div");
+    p.textContent = body;
+    box.append(strong, p);
+    el.appendChild(box);
+  }
+
+  function loadHistory() {
+    try {
+      const h = JSON.parse(localStorage.getItem(K_HISTORY) || "[]");
+      return Array.isArray(h) ? h : [];
+    } catch (e) { return []; }
+  }
+
+  function saveHistory(h) {
+    try { localStorage.setItem(K_HISTORY, JSON.stringify(h.slice(0, 200))); } catch (e) { /* ignore */ }
+  }
+
+  function renderHistory() {
+    const wrap = $("history");
+    wrap.innerHTML = "";
+    const h = loadHistory();
+    if (!h.length) {
+      const e = document.createElement("div");
+      e.className = "empty";
+      e.textContent = "No keys yet. Generated keys will appear here.";
+      wrap.appendChild(e);
+      return;
+    }
+    h.forEach((item) => {
+      const row = document.createElement("div");
+      row.className = "hrow";
+      const left = document.createElement("div");
+      const code = document.createElement("code");
+      code.textContent = item.key;
+      const meta = document.createElement("small");
+      meta.textContent = `${item.product} · ${TIERS[item.tier] || item.tier} · ${prettyDate(item.exp)} · ${item.buyer || "no note"} · ${item.created}`;
+      left.append(code, meta);
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "small";
+      btn.textContent = "Copy";
+      btn.addEventListener("click", async () => {
+        const ok = await copyText(item.key);
+        toast(ok ? "Key copied." : "Copy failed.", ok);
+      });
+      row.append(left, btn);
+      wrap.appendChild(row);
+    });
+  }
+
+  function getSecret() {
+    return $("secret").value;
+  }
+
+  function persistSecret() {
+    try {
+      if ($("remember").checked) localStorage.setItem(K_SECRET, $("secret").value);
+      else localStorage.removeItem(K_SECRET);
+    } catch (e) { /* ignore */ }
+  }
+
+  async function onGenerate() {
+    if (!hasCrypto()) return toast("This browser cannot sign keys. Open the page over HTTPS.", false);
+    const secret = getSecret();
+    if (secret.length < 8) return setResult($("kResult"), "bad", "Secret too short", "Use at least 8 characters for your signing secret.");
+
+    const product = $("kProduct").value.trim().toUpperCase();
+    if (!/^[A-Z0-9]{2,10}$/.test(product)) {
+      return setResult($("kResult"), "bad", "Product code invalid", "Use 2 to 10 letters or numbers, with no spaces or hyphens.");
+    }
+    const tier = $("kTier").value;
+    const expRaw = $("kExpiry").value;
+    let exp = "LIFE";
+    if (expRaw) {
+      exp = expRaw.replace(/-/g, "");
+      if (exp < todayKey()) {
+        return setResult($("kResult"), "bad", "Expiry in the past", "Pick today or a later date.");
+      }
+    }
+
+    const nonce = randomHex(4);
+    const key = await signKey(secret, product, tier, exp, nonce);
+    const buyer = $("kBuyer").value.trim();
+    const created = new Date().toLocaleDateString();
+
+    const h = loadHistory();
+    h.unshift({ key, product, tier, exp, buyer, created });
+    saveHistory(h);
+    renderHistory();
+    persistSecret();
+
+    const res = $("kResult");
+    res.innerHTML = "";
+    const pre = document.createElement("pre");
+    pre.className = "key";
+    pre.textContent = key;
+    const row = document.createElement("div");
+    row.className = "btns";
+    row.style.marginTop = "14px";
+    const copy = document.createElement("button");
+    copy.type = "button";
+    copy.className = "primary";
+    copy.textContent = "Copy key";
+    copy.addEventListener("click", async () => {
+      const ok = await copyText(key);
+      toast(ok ? "Key copied." : "Copy failed.", ok);
+    });
+    row.appendChild(copy);
+    res.append(pre, row);
+    toast("Key generated and saved to history.");
+  }
+
+  async function onVerify() {
+    if (!hasCrypto()) return toast("This browser cannot verify keys. Open the page over HTTPS.", false);
+    const secret = getSecret();
+    if (!secret) return setResult($("vResult"), "warn", "Secret needed", "Enter the signing secret above, then verify again.");
+    const raw = $("vKey").value;
+    if (!raw.trim()) return setResult($("vResult"), "warn", "Nothing to check", "Paste a key first.");
+
+    const r = await verifyKey(secret, raw);
+    if (!r.ok) return setResult($("vResult"), "bad", "Invalid key", r.msg);
+
+    const details = `Product: ${r.product}\nTier: ${TIERS[r.tier]}\nExpiry: ${prettyDate(r.exp)}\nNonce: ${r.nonce}`;
+    if (r.expired) return setResult($("vResult"), "warn", "Valid signature, but expired", details);
+    setResult($("vResult"), "ok", "Valid key", details);
+  }
+
+  async function copyText(text) {
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text);
+        return true;
+      }
+    } catch (e) { /* fall back */ }
+    const ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    let ok = false;
+    try { ok = document.execCommand("copy"); } catch (e) { ok = false; }
+    ta.remove();
+    return ok;
+  }
+
+  let toastTimer = null;
+  function toast(message, ok = true) {
+    const t = $("toast");
+    t.textContent = message;
+    t.className = `toast show ${ok ? "ok" : "err"}`;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { t.className = "toast"; }, 2200);
+  }
+
+  /* ---------- Tabs ---------- */
+
+  function selectTab(which) {
+    const isLicense = which === "license";
+    $("tab-license").setAttribute("aria-selected", String(isLicense));
+    $("tab-keys").setAttribute("aria-selected", String(!isLicense));
+    $("panel-license").hidden = !isLicense;
+    $("panel-keys").hidden = isLicense;
+  }
+
+  /* ---------- Wiring ---------- */
+
+  $("tab-license").addEventListener("click", () => selectTab("license"));
+  $("tab-keys").addEventListener("click", () => selectTab("keys"));
+
+  $("panel-license").addEventListener("input", renderLicense);
+  $("panel-license").addEventListener("change", renderLicense);
+
+  $("lCopy").addEventListener("click", async () => {
+    const ok = await copyText($("lOut").textContent);
+    toast(ok ? "License text copied." : "Copy failed.", ok);
+  });
+
+  $("lDl").addEventListener("click", () => {
+    const o = readLicenseForm();
+    const blob = new Blob([BUILDERS[o.type](o)], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "LICENSE";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    toast("LICENSE file downloaded.");
+  });
+
+  $("secret").addEventListener("input", () => { if ($("remember").checked) persistSecret(); });
+  $("remember").addEventListener("change", persistSecret);
+  $("kGen").addEventListener("click", onGenerate);
+  $("vGo").addEventListener("click", onVerify);
+  $("vKey").addEventListener("keydown", (e) => { if (e.key === "Enter") onVerify(); });
+  $("hClear").addEventListener("click", () => {
+    if (!window.confirm("Clear all key history on this device?")) return;
+    try { localStorage.removeItem(K_HISTORY); } catch (e) { /* ignore */ }
+    renderHistory();
+    toast("History cleared.");
+  });
+
+  /* ---------- Init ---------- */
+
+  $("lYear").value = String(new Date().getFullYear());
+  restoreLicense();
+  try {
+    const savedSecret = localStorage.getItem(K_SECRET);
+    if (savedSecret) {
+      $("secret").value = savedSecret;
+      $("remember").checked = true;
+    }
+  } catch (e) { /* ignore */ }
+  renderLicense();
+  renderHistory();
+})();
+</script>
+</body>
+</html>
